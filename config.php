@@ -1,6 +1,6 @@
 <?php
 
-$info = 'https://bitinfocharts.com/comparison/price-mining_profitability-'.($coin!='none'?$coin:'btc').'.html#1y';
+$info = 'https://bitinfocharts.com/comparison/mining_profitability-price-'.($coin!='none'?$coin:'btc').'.html#1y';
 $p0 = strlen($_POST['p0'])? $_POST['p0'] : 2000;
 $p1 = strlen($_POST['p1'])? $_POST['p1'] : $p0 * 1.5;
 $hf = strlen($_POST['hf'])? $_POST['hf'] : 1;
