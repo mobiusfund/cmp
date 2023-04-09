@@ -62,7 +62,7 @@ function incyears() {
     form = document.getElementById("acww-formwrapper");
     p1 = form.elements['p0'].value * (1 + years * 0.5);
     form.elements['p1'].value = p1 < 10? p1.toFixed(2) : p1.toFixed(0);
-    form.elements['hf'].value = (75 + years * 25) / 100;
+    form.elements['hf'].value = 1 + years * <?=$hfx;?>;
     form.action = RegExp.$1 + years + RegExp.$3;
     form.submit();
 }
@@ -91,7 +91,7 @@ function showcoin(bttn) {
     form = document.getElementById("acww-formwrapper");
     form.elements['p0'].value = !p0?  '' : p0 < 10? p0.toFixed(2) : p0.toFixed(0);
     form.elements['p1'].value = !p1?  '' : p1 < 10? p1.toFixed(2) : p1.toFixed(0);
-    form.elements['hf'].value = 1;
+    form.elements['hf'].value = bttn == 'none'? '' : (<?=1+$hfx;?>).toFixed(2);
     form.elements['dph'].value = !dph? '' : dph.toFixed(4);
     form.elements['mh'].value = vals[bttn][2];
     form.elements['mp'].value = vals[bttn][3];
