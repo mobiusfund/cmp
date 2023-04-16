@@ -5,8 +5,13 @@ $years = $_GET['years'] + 0;
 if (!$years or $years > 5) header("location:".dirname($_SERVER['PHP_SELF']).'/?years=1');
 $disp = strlen($_POST['disp'])? $_POST['disp'] : 'none';
 $coin = strlen($_POST['coin'])? $_POST['coin'] : 'none';
+$nx = $_POST['nx'] + 0 > 0? round($_POST['nx'] + 0) : 1;
+$hv = $_POST['hv'] + 0;
 include('config.php');
-$xd = 365 * $years;
+$hvd = (strtotime($halving) - time()) / 86400;
+$xd = 365 * $years - 1;
+$mp = round($mp);
+$mc = round($mc);
 
 $p0_at = $p0 == ${$coin}[0] || $p0 == round(${$coin}[0]);
 $dph_at = $dph == ${$coin}[1];
@@ -23,8 +28,9 @@ $pro = array();
 $k1 = log($p1 / $p0 * 1) / $xd;
 $k = log($p1 / $p0 / $hf) / $xd;
 for ($x = 0; $x <= $xd; $x++) {
+    $half = $hv && $hvd > 0 && $x > $hvd? 0.5 : 1;
     $pri[] = $p0 * exp($k1 * $x);
-    $pro[] = $dph * exp($k * $x) * $mh - $kwh * 24 * $mp / 1000;
+    $pro[] = $dph * exp($k * $x) * $mh * $half - $kwh * 24 * $mp / 1000;
     //echo number_format($pri[$x], 2), ', ';
 }
 $sum = array_sum($pro);
@@ -53,6 +59,10 @@ $mr = round(($sum - $mc) / $mc * 100) . '%, $' . round($sum);
     .glyphicon b {font-weight:1000;}
     .var-label {border:none; text-align:right; font-weight:700; cursor:default !important;}
     .roi-output {font-weight:700; padding:6px 0 6px 10px;}
+    #nx {float:right;}
+    #nx input {border:none; background:transparent; text-align:right; font-size:12px; width:80px; padding-right:1px;}
+    #nx input:focus {outline:none; text-decoration:underline;}
+    #hv {font-size:12px; cursor:pointer;}
 </style>
 <script>
 function incyears() {
@@ -89,8 +99,9 @@ function showcoin(bttn) {
     p1 = p0 * 1.5;
     dph = vals[bttn][1];
     form = document.getElementById("acww-formwrapper");
-    form.elements['p0'].value = !p0?  '' : p0 < 10? p0.toFixed(2) : p0.toFixed(0);
-    form.elements['p1'].value = !p1?  '' : p1 < 10? p1.toFixed(2) : p1.toFixed(0);
+    form.elements['nx'].value = '';
+    form.elements['p0'].value = !p0? '' : p0 < 10? p0.toFixed(2) : p0.toFixed(0);
+    form.elements['p1'].value = !p1? '' : p1 < 10? p1.toFixed(2) : p1.toFixed(0);
     form.elements['hf'].value = bttn == 'none'? '' : (<?=1+$hfx;?>).toFixed(2);
     form.elements['dph'].value = !dph? '' : dph.toFixed(4);
     form.elements['mh'].value = vals[bttn][2];
@@ -98,6 +109,21 @@ function showcoin(bttn) {
     form.elements['mc'].value = vals[bttn][4];
     form.elements['coin'].value = bttn;
     form.action = RegExp.$1 + 1 + RegExp.$3;
+    form.submit();
+}
+function multiplex() {
+    form = document.getElementById("acww-formwrapper");
+    nx = Math.round(form.elements['nx'].value);
+    nx = nx > 0? nx : 1;
+    nx /= <?=$nx;?>;
+    form.elements['mh'].value *= nx;
+    form.elements['mp'].value *= nx;
+    form.elements['mc'].value *= nx;
+    form.submit();
+}
+function halving() {
+    form = document.getElementById("acww-formwrapper");
+    form.elements['hv'].value = <?=$hv;?>? 0 : 1;
     form.submit();
 }
 </script>
@@ -110,6 +136,7 @@ function showcoin(bttn) {
 <table>
 <tr><td class="info-bullet">&#9632;</td><td>Press Enter to input a number and recalculate</td></tr>
 <tr><td class="info-bullet">&#9632;</td><td>Click a coin symbol to populate with real-world data</td></tr>
+<tr><td class="info-bullet">&#9632;</td><td>Click 1x to change miner quantity</td></tr>
 <tr><td class="info-bullet">&#9632;</td><td>Click Price Year 1 to iterate thru 5</td></tr>
 </table>
 <div>&nbsp;</div>
@@ -140,6 +167,8 @@ function showcoin(bttn) {
     $on = $coin == $c? 'coin-on' : '';
     echo "<span id=\"bttn-$c\" class=\"coin-off $on\" onclick=\"showcoin('$c');\">$c</span>\n";
 }?>
+<span id="hv" onclick="halving();">&nbsp;<?=$hv?'w/':'no';?> halving<input type="hidden" name="hv" value="<?=$hv;?>"></span>
+<span id="nx" onclick="this.firstChild.focus();"><input type="text" onchange="multiplex();" name="nx" value="<?=$nx;?>">x</span>
                     </div>
                     <div id="acww-form">
                         <div class="form-group"><div class="input-group">
@@ -279,11 +308,45 @@ if ($_GET['debug']) echo 'days: ', $xd+1, ', total: ', number_format($sum, 2);
 </script>
                 </div>
                 <div id="footer" style="font-size:13px; padding:0 2px 10px; display:none;">
-                    <div style="display:inline-block;">&copy; <a href="mailto:info@mobius.fund">Mobius Fund</a></div>
+                    <div style="display:inline-block;">&copy; <a href="mailto:jake@mobius.fund">Mobius Fund</a></div>
                     <div style="display:inline-block; float:right;">Info: <a href="<?=$info;?>" target="_blank">bitinfocharts.com</a></div>
                 </div>
             </div>
         </div>
+<center><div id="sheet"><table>
+<tr><td>Month</td><td>Price$</td><td>Mining$</td><td>kWh$</td><td>Profit$<br/></td></tr>
+<?php
+$mon = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+$days = array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+$month = date('m');
+$yr = date('Y');
+$off = 0;
+for ($m = 0; $m < 12 * $years; $m++) {
+    $mo = ($m + $month - 1) % 12;
+    if ($m and !$mo) $yr++;
+    $len = $days[$mo];
+    $pris = array_slice($pri, $off, $len);
+    $pros = array_slice($pro, $off, $len);
+    $pri0 = number_format($pris[0], 0);
+    $prom = array_sum($pros);
+    $kwhm = $kwh * 24 * $mp / 1000 * $len;
+    $revm = $prom + $kwhm;
+    $prom = number_format($prom, $prom < 100? 2 : 0);
+    $kwhm = number_format($kwhm, $kwhm < 100? 2 : 0);
+    $revm = number_format($revm, $revm < 100? 2 : 0);
+    $off += $len;
+    $tr1 = $m? '' : ' id="tr1"';
+    $ppx = max(3, min(14, 14 + 5 - strlen($revm)));
+    print("<tr$tr1><td>$mon[$mo] $yr</td><td>$pri0</td><td>$revm</td><td>$kwhm</td><td>$prom<br/></td></tr>\n");
+}
+?>
+</table><br/></div></center>
+<style>
+#sheet {text-align:right; font-size:12px; display:inline-block;}
+#sheet td {padding:0 <?=$ppx;?>px;}
+#tr1 {border-top: 1px solid #999;}
+#tr1 td {padding-top: 3px;}
+</style>
     </body>
 </html>
 

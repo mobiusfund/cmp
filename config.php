@@ -1,6 +1,7 @@
 <?php
 
 $info = 'https://bitinfocharts.com/comparison/mining_profitability-price-'.($coin!='none'?$coin:'btc').'.html#1y';
+$halving = 'May 2024';
 $hfx = 0.25;
 $p0 = strlen($_POST['p0'])? $_POST['p0'] : 2000;
 $p1 = strlen($_POST['p1'])? $_POST['p1'] : $p0 * 1.5;
