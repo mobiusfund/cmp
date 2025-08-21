@@ -10,7 +10,7 @@ The format is "date, price, daily profitability"
 * Fully functional:\
 http://mobius.fund/cmp
 
-* Foundation paper, the Journal of Investing [April 2023 issue](https://joi.pm-research.com/content/32/3/89):\
+* Foundation paper, the Journal of Investing [April 2023 issue](https://pm-research.com/content/iijinvest/32/3/89):\
 Crypto Mining: Profit Projection and Risk Hedging\
 http://mobius.fund/doc/JOI-Fan.pdf (fair use only, NOT for distribution)
 
